@@ -1,6 +1,6 @@
-import logo from "./logo.svg";
+
 import "./App.css";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 function App() {
   const [formData, setFormData] = useState({
@@ -15,221 +15,205 @@ function App() {
     gender: "",
     billableHours: "",
     designation: "",
+    billable_select: false,
   });
 
-  const [formErrors, setFormErrors] = useState({
-    firstName: "",
-    middleName: "",
-    lastName: "",
-    birthday: "",
-    email: "",
-    phone: "",
-    startTime: "",
-    endTime: "",
-    gender: "",
-    billableHours: "",
-    designation: "",
-  });
+  const [formErrors, setFormErrors] = useState({});
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
-  useEffect(() => {
-    const validateField = (name, value) => {
-      let error = "";
-
-      if (!value) {
-        error = `${name.charAt(0).toUpperCase() + name.slice(1)} is required`;
-        document.getElementsByName(name)[0].classList.add("red");
-      } else {
-        document.getElementsByName(name)[0].classList.remove("red");
-      }
-
-      setFormErrors((prevErrors) => ({
-        ...prevErrors,
-        [name]: error,
-      }));
-    };
+  const validateForm = () => {
+    const errors = {};
+    if (!formData.firstName) errors.firstName = "First Name is required";
 
 
-    validateField("firstName", formData.firstName);
-  }, [formData.firstName]);
+    if (!formData.middleName)
+      errors.middleName = "Middle Name is required";
 
-  useEffect(() => {
-    validateField("middleName", formData.middleName);
-  }, [formData.middleName]);
 
-  useEffect(() => {
-    validateField("lastName", formData.lastName);
-  }, [formData.lastName]);
+    if (!formData.lastName) errors.lastName = "Last Name is required";
+    if (!formData.birthday) errors.birthday = "Birthday is required";
+    if (!formData.email) {
+      errors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = "Email is invalid";
+    }
+    if (!formData.phone) {
+      errors.phone = "Phone number is required";
+    } else if (formData.phone.length!==10) {
+      errors.phone = "Phone number must be 10 digits";
+    }
+    if (!formData.startTime) errors.startTime = "Start Time is required";
+    if (!formData.endTime) errors.endTime = "End Time is required";
+    if (!formData.gender) errors.gender = "Gender is required";
+    if (!formData.billableHours)
+      errors.billableHours = "Billable Hours is required";
+    if (!formData.designation) errors.designation = "Designation is required";
 
-  useEffect(() => {
-    validateField("birthday", formData.birthday);
-  }, [formData.birthday]);
-
-  useEffect(() => {
-    validateField("email", formData.email);
-  }, [formData.email]);
-
-  useEffect(() => {
-    validateField("phone", formData.phone);
-  }, [formData.phone]);
-
-  useEffect(() => {
-    validateField("startTime", formData.startTime);
-  }, [formData.startTime]);
-
-  useEffect(() => {
-    validateField("endTime", formData.endTime);
-  }, [formData.endTime]);
-
-  useEffect(() => {
-    validateField("gender", formData.gender);
-  }, [formData.gender]);
-
-  useEffect(() => {
-    validateField("billableHours", formData.billableHours);
-  }, [formData.billableHours]);
-
-  useEffect(() => {
-    validateField("designation", formData.designation);
-  }, [formData.designation]);
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    const { name, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === "checkbox" ? checked : value,
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setIsSubmitted(true);
+
+    if (validateForm()) {
+     
+      console.log("Form submitted successfully", formData);
+    }
   };
 
   return (
-    <form action="">
-      <div>
-        <div className="form_component">
-          <div className="column-1">
-            <label htmlFor="firstName">First Name</label>
-            <input
-              type="text"
-              name="firstName"
-              className="FirstName"
-              value={formData.firstName}
-              onChange={handleInputChange}
-            />
-            <span className="error">{formErrors.firstName}</span>
+    <form onSubmit={handleSubmit}>
+      <div className="form_component">
+        <div className="column-1">
+          <label htmlFor="firstName">First Name</label>
+          <input
+            type="text"
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleInputChange}
+            className={formErrors.firstName ? "error-input" : ""}
+          />
+          {isSubmitted && <span className="error">{formErrors.firstName}</span>}
 
-            <label htmlFor="birthday">Birth Day</label>
-            <input
-              type="date"
-              name="birthday"
-              value={formData.birthday}
-              onChange={handleInputChange}
-            />
-            <span className="error">{formErrors.birthday}</span>
+          <label htmlFor="birthday">Birth Day</label>
+          <input
+            type="date"
+            name="birthday"
+            value={formData.birthday}
+            onChange={handleInputChange}
+            className={formErrors.birthday ? "error-input" : ""}
+          />
+          {isSubmitted && <span className="error">{formErrors.birthday}</span>}
 
-            <label htmlFor="gender">Select Gender</label>
-            <select
-              name="gender"
-              value={formData.gender}
-              onChange={handleInputChange}
-            >
-              <option value="">Select</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Others">Others</option>
-            </select>
-            <span className="error">{formErrors.gender}</span>
+          <label htmlFor="gender">Select Gender</label>
+          <select
+            name="gender"
+            value={formData.gender}
+            onChange={handleInputChange}
+            className={formErrors.gender ? "error-input" : ""}
+          >
+            <option value="">Select</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Others">Others</option>
+          </select>
+          {isSubmitted && <span className="error">{formErrors.gender}</span>}
 
-            <label htmlFor="billableHours">Billable Hours</label>
-            <input
-              type="number"
-              name="billableHours"
-              value={formData.billableHours}
-              onChange={handleInputChange}
-            />
+          <label htmlFor="billableHours">Billable Hours</label>
+          <input
+            type="number"
+            name="billableHours"
+            value={formData.billableHours}
+            onChange={handleInputChange}
+            className={formErrors.billableHours ? "error-input" : ""}
+          />
+          {isSubmitted && (
             <span className="error">{formErrors.billableHours}</span>
-          </div>
+          )}
+        </div>
 
-          <div className="column-2">
-            <label htmlFor="middleName">Middle Name</label>
-            <input
-              type="text"
-              name="middleName"
-              value={formData.middleName}
-              onChange={handleInputChange}
-            />
+        <div className="column-2">
+          <label htmlFor="middleName">Middle Name</label>
+          <input
+            type="text"
+            name="middleName"
+            value={formData.middleName}
+            onChange={handleInputChange}
+            className={formErrors.middleName ? "error-input" : ""}
+          />
+          {isSubmitted && (
             <span className="error">{formErrors.middleName}</span>
+          )}
 
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-            />
-            <span className="error">{formErrors.email}</span>
+          <label htmlFor="email">Email</label>
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleInputChange}
+            className={formErrors.email ? "error-input" : ""}
+          />
+          {isSubmitted && <span className="error">{formErrors.email}</span>}
 
-            <label htmlFor="startTime">Start Time</label>
-            <input
-              type="time"
-              name="startTime"
-              value={formData.startTime}
-              onChange={handleInputChange}
-            />
-            <span className="error">{formErrors.startTime}</span>
+          <label htmlFor="startTime">Start Time</label>
+          <input
+            type="time"
+            name="startTime"
+            value={formData.startTime}
+            onChange={handleInputChange}
+            className={formErrors.startTime ? "error-input" : ""}
+          />
+          {isSubmitted && <span className="error">{formErrors.startTime}</span>}
 
-            <label htmlFor="billable_select">Is Billable</label>
-            <input
-              type="checkbox"
-              name="billable_select"
-              id=""
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  billable_select: e.target.checked,
-                })
-              }
-            />
-          </div>
+          <label htmlFor="billable_select">Is Billable</label>
+          <input
+            type="checkbox"
+            name="billable_select"
+            checked={formData.billable_select}
+            onChange={handleInputChange}
+          />
+        </div>
 
-          <div className="column-3">
-            <label htmlFor="lastName">Last Name</label>
-            <input
-              type="text"
-              name="lastName"
-              value={formData.lastName}
-              onChange={handleInputChange}
-            />
-            <span className="error">{formErrors.lastName}</span>
+        <div className="column-3">
+          <label htmlFor="lastName">Last Name</label>
+          <input
+            type="text"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleInputChange}
+            className={formErrors.lastName ? "error-input" : ""}
+          />
+          {isSubmitted && <span className="error">{formErrors.lastName}</span>}
 
-            <label htmlFor="phone">Phone Number</label>
-            <input
-              type="number"
-              name="phone"
-              value={formData.phone}
-              onChange={handleInputChange}
-            />
-            <span className="error">{formErrors.phone}</span>
+          <label htmlFor="phone">Phone Number</label>
+          <input
+            type="number"
+            name="phone"
+            value={formData.phone}
+            onChange={handleInputChange}
+            className={formErrors.phone ? "error-input" : ""}
+          />
+          {isSubmitted && <span className="error">{formErrors.phone}</span>}
 
-            <label htmlFor="endTime">End Time</label>
-            <input
-              type="time"
-              name="endTime"
-              value={formData.endTime}
-              onChange={handleInputChange}
-            />
-            <span className="error">{formErrors.endTime}</span>
+          <label htmlFor="endTime">End Time</label>
+          <input
+            type="time"
+            name="endTime"
+            value={formData.endTime}
+            onChange={handleInputChange}
+            className={formErrors.endTime ? "error-input" : ""}
+          />
+          {isSubmitted && <span className="error">{formErrors.endTime}</span>}
 
-            <label htmlFor="designation">Select Designation</label>
-            <select
-              name="designation"
-              value={formData.designation}
-              onChange={handleInputChange}
-            >
-              <option value="">Select</option>
-              <option value="Manager">Manager</option>
-              <option value="Developer">Developer</option>
-            </select>
+          <label htmlFor="designation">Select Designation</label>
+          <select
+            name="designation"
+            value={formData.designation}
+            onChange={handleInputChange}
+            className={formErrors.designation ? "error-input" : ""}
+          >
+            <option value="">Select</option>
+            <option value="Manager">Manager</option>
+            <option value="Developer">Developer</option>
+          </select>
+          {isSubmitted && (
             <span className="error">{formErrors.designation}</span>
-          </div>
+          )}
         </div>
-        <div className="Button component">
-          <button type="submit">Submit</button>
-        </div>
+      </div>
+
+      <div className="Button component">
+        <button type="submit">Submit</button>
       </div>
     </form>
   );
