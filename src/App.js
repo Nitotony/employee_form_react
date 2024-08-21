@@ -48,7 +48,7 @@ function App() {
       }));
     };
 
-    // Validate each field when its value changes
+
     validateField("firstName", formData.firstName);
   }, [formData.firstName]);
 
